@@ -52,8 +52,8 @@ namespace MiniBankApi.Controllers
         [Route("make_funds_transfer")]
         public IActionResult MakeFundsTransfer(string FromAccount, string ToAccount, decimal Amount, string TransactionPin)
         {
-            if (!(Regex.IsMatch(FromAccount, @"^\d{9}[0-9])$") || !(Regex.IsMatch(ToAccount, @"^\d{9}[0-9])$"))))
-                return BadRequest("Your Account Number can only be 10 digits");
+            if (FromAccount.Equals(ToAccount)) return BadRequest("You cannot transfer money to yourself");
+            
             return Ok(_transactionService.MakeFundsTransfer(FromAccount,ToAccount,Amount,TransactionPin));
         }
 

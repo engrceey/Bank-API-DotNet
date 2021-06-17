@@ -131,9 +131,8 @@ namespace MiniBankApi.Services.Implementations
                 sourceAccount.CurrentAccountBalance -= Amount;
                 destinationAccount.CurrentAccountBalance += Amount;
 
-                if((_context.Entry(sourceAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) &&
-                    _context.Entry(destinationAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) 
-                    {
+                if ((_context.Entry(sourceAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) && (_context.Entry(destinationAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified))
+                {
                         transaction.TransactionStatus = TranStatus.Success;
                         response.ReponseCode = "00";
                         response.ResponseMessage = "Transaction Successful";
