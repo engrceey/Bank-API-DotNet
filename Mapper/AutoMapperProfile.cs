@@ -11,6 +11,7 @@ namespace MiniBankApi.Mapper
             CreateMap<RegisterNewAccountModel, Account>();
             CreateMap<UpdateAccountModel, Account>();
             CreateMap<Account, GetAccountModel>();
+            CreateMap<TransactionRequestDto, Transaction>();
         }
     }
 }

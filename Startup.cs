@@ -15,6 +15,7 @@ using Microsoft.OpenApi.Models;
 using MiniBankApi.Data;
 using MiniBankApi.Services;
 using MiniBankApi.Services.Implementations;
+using MiniBankApi.Services.Interface;
 
 namespace MiniBankApi
 {
@@ -33,6 +34,7 @@ namespace MiniBankApi
 
             services.AddControllers();
             services.AddScoped<IAccountService, AccountService>();
+            services.AddScoped<ITransaction, TransactionService>();
             services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
              services.AddDbContext<ApplicationDbContext>(option => 

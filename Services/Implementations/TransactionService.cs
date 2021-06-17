@@ -111,14 +111,118 @@ namespace MiniBankApi.Services.Implementations
 
         }
 
-        public Response MakeFundsTransfer(string FromAccount, string ToAccount, decimal Amount, int TransactionPin)
+        public Response MakeFundsTransfer(string FromAccount, string ToAccount, decimal Amount, string TransactionPin)
         {
-            throw new NotImplementedException();
+            Response response = new Response();
+
+             Account sourceAccount;
+             Account destinationAccount;
+             Transaction transaction = new Transaction();
+
+            var authUser = _accountService.Authenticate(FromAccount, TransactionPin);
+
+            if (authUser == null) throw new ApplicationException("Invalid credentials");
+
+            try
+            {
+                sourceAccount = _accountService.GetByAccountNumber(FromAccount);
+                destinationAccount = _accountService.GetByAccountNumber(ToAccount);
+
+                sourceAccount.CurrentAccountBalance -= Amount;
+                destinationAccount.CurrentAccountBalance += Amount;
+
+                if((_context.Entry(sourceAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) &&
+                    _context.Entry(destinationAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) 
+                    {
+                        transaction.TransactionStatus = TranStatus.Success;
+                        response.ReponseCode = "00";
+                        response.ResponseMessage = "Transaction Successful";
+                        response.data = null;
+                    } else 
+                    {
+                        transaction.TransactionStatus = TranStatus.Failed;
+                        response.ReponseCode = "02";
+                        response.ResponseMessage = "Transaction Failed";
+                        response.data = null;
+                    }
+            }
+            catch (Exception exp)
+            {
+                _logger.LogError($"An error occured... {exp.Message}");
+
+            }
+
+            transaction.TransactionType = TranType.Transfer;
+            transaction.TransactionSourceAccount = FromAccount;
+            transaction.TransactionDestinationAccount = ToAccount;
+            transaction.TransactionAmount = Amount;
+            transaction.TransactionDate = DateTime.Now;
+            transaction.TransactionParticulars = $"NEW Transaction FROM SOURCE {JsonConvert.SerializeObject(transaction.TransactionSourceAccount)} TO DESTINATION ACCOUNT=> {JsonConvert.SerializeObject(transaction.TransactionDestinationAccount)} ON DATE => {transaction.TransactionDate} TRAN_TYPE =>  {transaction.TransactionType} TRAN_STATUS => {transaction.TransactionStatus}";
+
+
+            _context.Transactions.Add(transaction);
+            _context.SaveChanges();
+
+
+            return response;
+
         }
 
-        public Response MakeWithdrawal(string AccountNumber, decimal Amount, int TransactionPin)
+        public Response MakeWithdrawal(string AccountNumber, decimal Amount, string TransactionPin)
         {
-            throw new NotImplementedException();
+            Response response = new Response();
+
+             Account sourceAccount;
+             Account destinationAccount;
+             Transaction transaction = new Transaction();
+
+            var authUser = _accountService.Authenticate(AccountNumber, TransactionPin);
+
+            if (authUser == null) throw new ApplicationException("Invalid credentials");
+
+            try
+            {
+                sourceAccount = _accountService.GetByAccountNumber(AccountNumber);
+                destinationAccount = _accountService.GetByAccountNumber(_bankSettlementAccount);
+
+                sourceAccount.CurrentAccountBalance -= Amount;
+                destinationAccount.CurrentAccountBalance += Amount;
+
+                if((_context.Entry(sourceAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) &&
+                    _context.Entry(destinationAccount).State == Microsoft.EntityFrameworkCore.EntityState.Modified) 
+                    {
+                        transaction.TransactionStatus = TranStatus.Success;
+                        response.ReponseCode = "00";
+                        response.ResponseMessage = "Transaction Successful";
+                        response.data = null;
+                    } else 
+                    {
+                        transaction.TransactionStatus = TranStatus.Failed;
+                        response.ReponseCode = "02";
+                        response.ResponseMessage = "Transaction Failed";
+                        response.data = null;
+                    }
+            }
+            catch (Exception exp)
+            {
+                _logger.LogError($"An error occured... {exp.Message}");
+
+            }
+
+            transaction.TransactionType = TranType.Withdrawal;
+            transaction.TransactionSourceAccount = _bankSettlementAccount;
+            transaction.TransactionDestinationAccount = AccountNumber;
+            transaction.TransactionAmount = Amount;
+            transaction.TransactionDate = DateTime.Now;
+            transaction.TransactionParticulars = $"NEW Transaction FROM SOURCE {JsonConvert.SerializeObject(transaction.TransactionSourceAccount)} TO DESTINATION ACCOUNT=> {JsonConvert.SerializeObject(transaction.TransactionDestinationAccount)} ON DATE => {transaction.TransactionDate} TRAN_TYPE =>  {transaction.TransactionType} TRAN_STATUS => {transaction.TransactionStatus}";
+
+
+            _context.Transactions.Add(transaction);
+            _context.SaveChanges();
+
+
+            return response;
+
         }
     }
 }
