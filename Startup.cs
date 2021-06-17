@@ -13,6 +13,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 using MiniBankApi.Data;
+using MiniBankApi.Services;
+using MiniBankApi.Services.Implementations;
 
 namespace MiniBankApi
 {
@@ -30,14 +32,26 @@ namespace MiniBankApi
         {
 
             services.AddControllers();
+            services.AddScoped<IAccountService, AccountService>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
 
              services.AddDbContext<ApplicationDbContext>(option => 
                                 option.UseSqlite(Configuration.GetConnectionString("Sqlite")));
 
-
+            
             services.AddSwaggerGen(c =>
             {
-                c.SwaggerDoc("v1", new OpenApiInfo { Title = "MiniBankApi", Version = "v1" });
+                c.SwaggerDoc("v1", new OpenApiInfo 
+                { Title = "MiniBankApi", 
+                    Version = "v1", 
+                    Description = "Mini Bank Project ASP.Net",
+                    Contact = new Microsoft.OpenApi.Models.OpenApiContact
+                    {
+                        Name = "Zurum ogbonda",
+                        Email = "zurumogbonda@gmail.com"
+                    }
+                    
+                });
             });
         }
 
